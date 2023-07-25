@@ -37,6 +37,8 @@ const App = () => {
     <div className="h-screen bg-blue-500 flex flex-col justify-center items-center space-y-4 text-white font-bold">
       <h1>Welcome to React App that's built using Webpack and Babel</h1>
 
+      <p>Version 2!</p>
+
       {/* Conditionally rendering a loading state when the data
           hasn't been returned yet */}
       {isLoading ? (
