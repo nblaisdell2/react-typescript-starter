@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { log, logWarn, logError } from "../utils/logs/log";
+import { log, logWarn, logError } from "../utils/log";
 
 // Schema of return data from API
 type Data = {
