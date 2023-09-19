@@ -9,7 +9,7 @@ import App from "./src/App";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { log } from "./utils/log";
 
-log();
+log("From .env", { val: process.env.TEST_VAR });
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
