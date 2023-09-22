@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 // Needed to run locally
 const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
@@ -9,6 +10,9 @@ const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
   filename: "index.html",
   inject: "body",
 });
+
+// Needed for HMR when making changes during development
+const ReactRefreshWebpackPluginConfig = new ReactRefreshWebpackPlugin();
 
 const NodePolyfillPluginConfig = new NodePolyfillPlugin();
 const DotenvPluginConfig = new Dotenv();
@@ -41,6 +45,7 @@ module.exports = {
     HTMLWebpackPluginConfig,
     NodePolyfillPluginConfig,
     DotenvPluginConfig,
+    ReactRefreshWebpackPluginConfig,
   ],
   /** "target"
    * setting "node" as target app (server side), and setting it as "web" is
@@ -72,6 +77,10 @@ module.exports = {
     hot: true,
 
     compress: true,
+
+    client: {
+      logging: "warn",
+    },
   },
   watchOptions: {
     poll: true,
@@ -98,7 +107,14 @@ module.exports = {
       {
         test: /\.(js|jsx)$/, //kind of file extension this rule should look for and apply in test
         exclude: /node_modules/, //folder to be excluded
-        use: "babel-loader", //loader which we are going to use
+        use: [
+          {
+            loader: require.resolve("babel-loader"),
+            options: {
+              plugins: [require.resolve("react-refresh/babel")],
+            },
+          },
+        ],
       },
       {
         test: /\.(ts|tsx)$/,

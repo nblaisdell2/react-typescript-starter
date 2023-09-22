@@ -174,3 +174,41 @@ Winston is a great JavaScript library which gives us a great API for defining a 
 We're able to define different formats for how the logs should be generated and displayed, and we can define multiple ways for those logs to be sent out, either via the console, to a file, a database, a REST api, and possibly others.
 
 - For this template project, it's currently only writing to the console.
+
+#### Enabling HMR (Hot-Module Replacement)
+
+1. `npm install -D @pmmmwh/react-refresh-webpack-plugin react-refresh type-fest`
+2. Add `react-refresh/babel` to the list of plugins in the `babelrc` file
+3. Add the following to the `webpack.config.js` file:
+
+```
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+
+...
+
+plugins: [
+  ...,
+  new ReactRefreshWebpackPlugin(),
+],
+
+...
+
+// Update the "babel-loader" rule
+rules: [
+  ...,
+  {
+    test: /\.(js|jsx)$/, //kind of file extension this rule should look for and apply in test
+    exclude: /node_modules/, //folder to be excluded
+    use: [
+      {
+        loader: require.resolve("babel-loader"),
+        options: {
+          plugins: [require.resolve("react-refresh/babel")],
+        },
+      },
+    ],
+  },
+  ...,
+]
+
+```
