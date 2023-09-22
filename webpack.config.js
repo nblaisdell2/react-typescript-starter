@@ -4,6 +4,12 @@ const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
+// Needed for copying static assets (images) to build output folder
+const CopyPlugin = require("copy-webpack-plugin");
+
+// Needed for HMR when making changes during development
+const ReactRefreshWebpackPluginConfig = new ReactRefreshWebpackPlugin();
+
 // Needed to run locally
 const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
   template: __dirname + "/public/index.html",
@@ -11,21 +17,21 @@ const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
   inject: "body",
 });
 
-// Needed for HMR when making changes during development
-const ReactRefreshWebpackPluginConfig = new ReactRefreshWebpackPlugin();
-
 const NodePolyfillPluginConfig = new NodePolyfillPlugin();
 const DotenvPluginConfig = new Dotenv();
 
+// Needed since React Refresh/HMR cannot run in production
+const isDevelopment =
+  process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test";
+
 /*We are basically telling webpack to take index.js from entry. Then check for all file extensions in resolve. 
 After that apply all the rules in module.rules and produce the output and place it in main.js in the public folder.*/
-
 module.exports = {
   /** "mode"
    * the environment - development, production, none. tells webpack
    * to use its built-in optimizations accordingly. default is production
    */
-  mode: "development",
+  mode: isDevelopment ? "development" : "production",
   /** "entry"
    * the entry point
    */
@@ -45,8 +51,11 @@ module.exports = {
     HTMLWebpackPluginConfig,
     NodePolyfillPluginConfig,
     DotenvPluginConfig,
-    ReactRefreshWebpackPluginConfig,
-  ],
+    new CopyPlugin({
+      patterns: [{ from: "public/*.png", noErrorOnMissing: true }],
+    }),
+    isDevelopment && ReactRefreshWebpackPluginConfig,
+  ].filter(Boolean),
   /** "target"
    * setting "node" as target app (server side), and setting it as "web" is
    * for browser (client side). Default is "web"
@@ -75,7 +84,7 @@ module.exports = {
      * refresh as a fallback in case of build failures
      */
     hot: true,
-
+    liveReload: false,
     compress: true,
 
     client: {
@@ -111,7 +120,9 @@ module.exports = {
           {
             loader: require.resolve("babel-loader"),
             options: {
-              plugins: [require.resolve("react-refresh/babel")],
+              plugins: [
+                isDevelopment && require.resolve("react-refresh/babel"),
+              ].filter(Boolean),
             },
           },
         ],
