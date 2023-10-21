@@ -80,13 +80,51 @@ When going with this method of creating a React app, the first roadblock that yo
 - **Webpack** - This library allows us to take all the different modules, and various other files used and referenced throughout our application, and merge them all into a single JavaScript file, as well as converting it to an older version of ECMAScript, one that is known by most browsers.
 - **Babel** - This library enhances Webpack, and does the "transpilation" from one language to another (`.jsx` / `.ts` / `.tsx` to `.js`).
 
-After configuring the `webpack.config.js` and `.babelrc` files, we're able to build our React app into a `dist` folder, providing us with a "minified" version of our code which can be uploaded to whatever server will be hosting our files for public availability. In our case, this will be AWS S3.
+#### Enabling HMR (Hot-Module Replacement)
+
+1. `npm install -D @pmmmwh/react-refresh-webpack-plugin react-refresh type-fest`
+2. Add `react-refresh/babel` to the list of plugins in the `babelrc` file
+3. Add the following to the `webpack.config.js` file:
+
+```js
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+
+...
+
+plugins: [
+  ...,
+  new ReactRefreshWebpackPlugin(),
+],
+
+...
+
+// Update the "babel-loader" rule
+rules: [
+  ...,
+  {
+    test: /\.(js|jsx)$/, //kind of file extension this rule should look for and apply in test
+    exclude: /node_modules/, //folder to be excluded
+    use: [
+      {
+        loader: require.resolve("babel-loader"),
+        options: {
+          plugins: [require.resolve("react-refresh/babel")],
+        },
+      },
+    ],
+  },
+  ...,
+]
+
+```
+
+After configuring the `webpack.config.js` and `babel.config.js` files, we're able to build our React app into a `dist` folder, providing us with a "minified" version of our code which can be uploaded to whatever server will be hosting our files for public availability. In our case, this will be AWS S3.
 
 - `npm run build`
 
 We're also able to utilize one of webpack's technologies, `webpack-dev-server`, which enables us to run a local server on our machine to locally run the React app. This is great for rapid development, and will mainly be used when creating a new application.
 
-- `npm run start`
+- `npm run dev`
 
 ## TypeScript
 
@@ -106,7 +144,7 @@ Retrieving data from external sources can be a bit of a hassle in React, especia
 
 #### React Query Example
 
-```
+```ts
 // User-Defined type to hold
 // return data from API
 type Data = {
@@ -138,7 +176,7 @@ In this case, we're using a popular testing library simply known as the "React T
 
 #### Example Test File (App.test.tsx)
 
-```
+```tsx
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 import React from "react";
@@ -161,8 +199,6 @@ describe("App Page Tests", () => {
     expect(myDiv).toBeInTheDocument();
   });
 });
-
-
 ```
 
 ## Winston Logging Library
@@ -174,41 +210,3 @@ Winston is a great JavaScript library which gives us a great API for defining a 
 We're able to define different formats for how the logs should be generated and displayed, and we can define multiple ways for those logs to be sent out, either via the console, to a file, a database, a REST api, and possibly others.
 
 - For this template project, it's currently only writing to the console.
-
-#### Enabling HMR (Hot-Module Replacement)
-
-1. `npm install -D @pmmmwh/react-refresh-webpack-plugin react-refresh type-fest`
-2. Add `react-refresh/babel` to the list of plugins in the `babelrc` file
-3. Add the following to the `webpack.config.js` file:
-
-```
-const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-
-...
-
-plugins: [
-  ...,
-  new ReactRefreshWebpackPlugin(),
-],
-
-...
-
-// Update the "babel-loader" rule
-rules: [
-  ...,
-  {
-    test: /\.(js|jsx)$/, //kind of file extension this rule should look for and apply in test
-    exclude: /node_modules/, //folder to be excluded
-    use: [
-      {
-        loader: require.resolve("babel-loader"),
-        options: {
-          plugins: [require.resolve("react-refresh/babel")],
-        },
-      },
-    ],
-  },
-  ...,
-]
-
-```
