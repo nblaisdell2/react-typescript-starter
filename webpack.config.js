@@ -2,13 +2,8 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
-const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-
-// Needed for copying static assets (images) to build output folder
 const CopyPlugin = require("copy-webpack-plugin");
-
-// Needed for HMR when making changes during development
-const ReactRefreshWebpackPluginConfig = new ReactRefreshWebpackPlugin();
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 // Needed to run locally
 const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
@@ -16,6 +11,14 @@ const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
   filename: "index.html",
   inject: "body",
 });
+
+// Needed for copying static assets (images) to build output folder
+const CopyPluginConfig = new CopyPlugin({
+  patterns: [{ from: "public/*.png", noErrorOnMissing: true }],
+});
+
+// Needed for HMR when making changes during development
+const ReactRefreshWebpackPluginConfig = new ReactRefreshWebpackPlugin();
 
 const NodePolyfillPluginConfig = new NodePolyfillPlugin();
 const DotenvPluginConfig = new Dotenv();
@@ -51,9 +54,7 @@ module.exports = {
     HTMLWebpackPluginConfig,
     NodePolyfillPluginConfig,
     DotenvPluginConfig,
-    new CopyPlugin({
-      patterns: [{ from: "public/*.png", noErrorOnMissing: true }],
-    }),
+    CopyPluginConfig,
     isDevelopment && ReactRefreshWebpackPluginConfig,
   ].filter(Boolean),
   /** "target"
